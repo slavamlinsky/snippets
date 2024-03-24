@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/db";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 export const editSnippet = async (id: number, code: string) => {
@@ -9,6 +10,7 @@ export const editSnippet = async (id: number, code: string) => {
     data: { code },
   });
 
+  revalidatePath(`/snippets/${id}`);
   redirect(`/snippets/${id}`);
 };
 
@@ -16,6 +18,8 @@ export const deleteSnippet = async (id: number) => {
   await db.snippet.delete({
     where: { id },
   });
+
+  revalidatePath("/");
 
   redirect(`/`);
 };
@@ -43,6 +47,8 @@ export async function createSnippet(formState: { message: string }, formData: Fo
         code: code,
       },
     });
+
+    revalidatePath("/");
 
     // throw new Error("Failed to save to database.");
   } catch (err: unknown) {
